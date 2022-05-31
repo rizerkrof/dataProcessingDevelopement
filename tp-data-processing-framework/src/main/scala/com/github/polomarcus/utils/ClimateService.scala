@@ -19,7 +19,8 @@ object ClimateService {
     val pattern = new Regex(
       "(réchauffement|dérèglement|changement|crise|enjeux|volet)(|s) climatique(|s)")
     val pattern2 = new Regex("((réchauffement|dérèglement|changement) du climat)|(giec)|(climat :)")
-      pattern.findFirstIn(description.toLowerCase).isDefined || pattern2
+
+    pattern.findFirstIn(description.toLowerCase).isDefined || pattern2
         .findFirstIn(description.toLowerCase)
         .isDefined
     }
