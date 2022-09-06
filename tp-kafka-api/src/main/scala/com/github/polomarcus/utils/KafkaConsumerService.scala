@@ -33,10 +33,11 @@ object KafkaConsumerService {
   val topicToRead = List(topic).asJava
 
   //@TODO we need to connect our consumer to our topic by subscribing it
-  ???
+  consumer.subscribe(topicToRead)
 
   def consume() = {
     try {
+      logger.info(s"${consumer.listTopics().keySet()}")
       for (i <- 0 to 20)  {
         val messages = consumer.poll(Duration.ofMillis(1000))
         if( messages.count() > 0) {
