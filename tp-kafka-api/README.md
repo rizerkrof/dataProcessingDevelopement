@@ -10,7 +10,7 @@
 Start multiples kakfa servers (called brokers) using the docker compose recipe `docker-compose.yml` :
 
 ```bash
-docker-compose -f docker-compose up --detached
+docker-compose -f docker-compose.yml up --detached
 ```
 
 Check on the docker hub the image used :
@@ -60,22 +60,22 @@ sbt run
 ##### Question 1
 Your ops team tells your app is slow and the CPU is not used much, they were hoping to help you but they are not Kafka experts.
 
-* Look at the method `producer.flush()`, can you improve the speed of the program ? 
-* What about batching the messages ? [Help](https://www.conduktor.io/kafka/kafka-producer-batching)
+* [ ] Look at the method `producer.flush()`, can you improve the speed of the program ? 
+* [ ] What about batching the messages ? [Help](https://www.conduktor.io/kafka/kafka-producer-batching)
 
 ##### Question 2
 Your friendly ops team warns you about kafka disks starting to be full. What can you do ?
 
 Tips : 
-* What about [messages compression](https://kafka.apache.org/documentation/#producerconfigs_compression.type) ? Can you implement it ? [You heard that snappy compression is great.](https://www.conduktor.io/kafka/producer-default-partitioner-and-sticky-partitioner)
-* What about [messages lifetime](https://kafka.apache.org/documentation/#topicconfigs_delete.retention.ms) on your kafka brokers ? Can you change your topic config ?
+* [ ] What about [messages compression](https://kafka.apache.org/documentation/#producerconfigs_compression.type) ? Can you implement it ? [You heard that snappy compression is great.](https://www.conduktor.io/kafka/producer-default-partitioner-and-sticky-partitioner)
+* [ ] What about [messages lifetime](https://kafka.apache.org/documentation/#topicconfigs_delete.retention.ms) on your kafka brokers ? Can you change your topic config ?
 
 ##### Question 3
 After a while and a lot of deployments and autoscaling (adding and removing due to traffic spikes), on your data quality dashboard you are seeing some messages are duplicates or missing. What can you do ?
 
-* What are ["acks"](https://kafka.apache.org/documentation/#producerconfigs_acks) ? when to use acks=0 ? when to use acks=all?
-* Can [idempotence](https://kafka.apache.org/documentation/#producerconfigs_enable.idempotence) help us ?
-* what is ["min.insync.replicas"](https://kafka.apache.org/documentation/#brokerconfigs_min.insync.replicas) ?
+* [ ] What are ["acks"](https://kafka.apache.org/documentation/#producerconfigs_acks) ? when to use acks=0 ? when to use acks=all?
+* [ ] Can [idempotence](https://kafka.apache.org/documentation/#producerconfigs_enable.idempotence) help us ?
+* [ ] what is ["min.insync.replicas"](https://kafka.apache.org/documentation/#brokerconfigs_min.insync.replicas) ?
 
 #### Consumer
 The goal is to read messages from our producer thanks to the "KafkaConsumerService" class.
@@ -94,13 +94,46 @@ Now, resend messages to kafka and look at the consumer group lag inside Condukto
 What are we noticing ? What we change a configuration to not re read the same data always and always ?
 
 ##### Question 1
-* What happens if your consumer crash while processing data ? What is the "at most once" / "at least once" / "exactly once" semantics ? [Help](https://www.conduktor.io/kafka/complete-kafka-consumer-with-java#Automatic-Offset-Committing-Strategy-1)
+* [ ] What happens if your consumer crash while processing data ? What is the "at most once" / "at least once" / "exactly once" semantics ? [Help](https://www.conduktor.io/kafka/complete-kafka-consumer-with-java#Automatic-Offset-Committing-Strategy-1)
 
 ##### Question 2
 We have introduced a bug in our program, and we would like to replay some data. Can we use Conduktor to help our consumer group? Should we create a new consumer group ?
-* [Help](https://kafka.apache.org/documentation.html#basic_ops_consumer_group)
+* [ ][Help](https://kafka.apache.org/documentation.html#basic_ops_consumer_group)
 
+#### Schema Registry
+##### Intro
+Look at :
+* your docker-compose.yml, and the schema-registry service.
+* Inside Conduktor, configure the connection with your schema-registry (http://localhost:8081)
+
+##### Questions
+* [ ] Where are stored schemas information ? [Help](https://docs.confluent.io/platform/current/schema-registry/index.html)
+* [ ] What is serialization ? [Help](https://developer.confluent.io/learn-kafka/kafka-streams/serialization/#serialization)
+* [ ] What serialization format are supported ? [Help](https://docs.confluent.io/platform/current/schema-registry/index.html#avro-json-and-protobuf-supported-formats-and-extensibility)
+* [ ] Why is the Avro format so compact ? [Help](https://docs.confluent.io/platform/current/schema-registry/index.html#ak-serializers-and-deserializers-background)
+* [ ] What are the best practices to run a Schema Registry in production ? [Help1](https://docs.confluent.io/platform/current/schema-registry/index.html#sr-high-availability-single-primary) and [Help2](https://docs.confluent.io/platform/current/schema-registry/installation/deployment.html#running-sr-in-production)
+
+##### Code
+
+[How to create a custom serializer ?](https://developer.confluent.io/learn-kafka/kafka-streams/serialization/#custom-serdes)
+
+[Kafka Streams Data Types and Serialization](https://docs.confluent.io/platform/current/streams/developer-guide/datatypes.html#avro)
+
+1. Inside `KafkaAvroProducerService`, replace `???` to send your first message using Avro and the Schema Registry.
+2. Add a new property to the class `News` called `date: java.sql.Timestamp`
+3. Send another message and on Conduktor see what happens
+4. Modify the class `News` from `title: String` to `bigTitle: String`
+5. What happens on your console log when sending messages ? 
+
+#### Monitoring and Operations
+##### Questions
+* [ ] Which metrics can we monitor ?
+[Datadog's Kafka dashboard overview](https://www.datadoghq.com/dashboards/kafka-dashboard/)
 
 ### Useful links
 * https://sparkbyexamples.com/kafka/apache-kafka-consumer-producer-in-scala/
 * https://www.confluent.io/fr-fr/blog/kafka-scala-tutorial-for-beginners/
+* https://developer.confluent.io/learn-kafka/kafka-streams/get-started/
+* [Hands-on Kafka Streams in Scala](https://softwaremill.com/hands-on-kafka-streams-in-scala/)
+* [Scala, Avro Serde et Schema registry](https://univalence.io/blog/drafts/scala-avro-serde-et-schema-registry/)
+* [Usage as a Kafka Serde (kafka lib for avro)](https://github.com/sksamuel/avro4s#usage-as-a-kafka-serde)
