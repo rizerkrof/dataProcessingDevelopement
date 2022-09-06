@@ -24,18 +24,29 @@ object KafkaProducerService {
     val record = new ProducerRecord(topic, key, value)
 
     try {
-      val metadata = ??? // @TODO
-
+      logger.info(s"topic : ${topic}")
+      logger.info(s"bootstrap server : ${ConfService.BOOTSTRAP_SERVERS_CONFIG}")
+      // val topics =
+      // logger.info(s"${producer.listTopics()}")
+      // producer.beginTransaction()
+      val metadata = producer.send(record) // @TODO
+      // producer.commitTransaction()
+      // print(metadata)
       logger.info(s"""
         Sending message with key "$key" and value "$value"
+        Offset : ${metadata.get().offset()}
       """)
     } catch {
       case e:Exception => logger.error(e.toString)
     } finally { // --> "finally" happens everytime and the end, even if there is an error
       //@see on why using flush : https://github.com/confluentinc/confluent-kafka-python/issues/137#issuecomment-282427382
       //@TODO to speed up this function that send one message at the time, what could we do ?
-      producer.flush()
+      // producer.flush()
     }
+  }
+
+  def flush() = {
+    producer.flush()
   }
 
   def close() = {
