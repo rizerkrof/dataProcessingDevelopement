@@ -31,13 +31,7 @@ object KafkaConsumerService {
   val consumer = new KafkaConsumer[String, String](props)
   val topicToRead = List(topic).asJava
 
-<<<<<<< HEAD
-  //@TODO we need to connect our consumer to our topic by subscribing it
   consumer.subscribe(topicToRead)
-=======
-  //@TODO we need to connect our consumer to our topic by **subscribing** it
-  ???
->>>>>>> 068c5ae9a6bb5796a8b73be1d63ec1af0444e6e7
 
   def consume() = {
     try {
