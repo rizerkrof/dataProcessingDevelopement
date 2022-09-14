@@ -12,17 +12,17 @@ Start multiples kakfa servers (called brokers) using the docker compose recipe `
 ```bash
 docker-compose -f docker-compose.yml up --detached
 ```
-
 Check on the docker hub the image used :
 * https://hub.docker.com/r/confluentinc/cp-kafka
 
-### Verify
+#### Verify Docker containers
 ```
 docker ps
 CONTAINER ID   IMAGE                             COMMAND                  CREATED          STATUS         PORTS                                                                                  NAMES
 b015e1d06372   confluentinc/cp-kafka:7.1.3       "/etc/confluent/dock…"   10 seconds ago   Up 9 seconds   0.0.0.0:9092->9092/tcp, :::9092->9092/tcp, 0.0.0.0:9999->9999/tcp, :::9999->9999/tcp   kafka1
 (...)
 ```
+
 
 ### Kafka User Interface - Conduktor
 Download and install : https://www.conduktor.io/download/
@@ -49,12 +49,17 @@ Using the `scala/com.github.polomarcus/utis/KafkaProducerService`, send messages
 Questions :
 * What are serializers (and deserializers) ? What is the one used here ? Why use them ?
 
-To run your program 
+#### To run your program 
 ```aidl
 sbt "runMain com.github.polomarcus.main.MainKafkaProducer"
 # OR
 sbt run
 # and type "2" to run "com.github.polomarcus.main.MainKafkaProducer"
+
+# OR
+docker-compose run my-scala-app bash
+> sbt
+> run
 ```
 
 ##### Question 1
@@ -107,7 +112,8 @@ Look at :
 * Inside Conduktor, configure the connection with your schema-registry (http://localhost:8081)
 
 ##### Questions
-* [ ] Where are stored schemas information ? [Help](https://docs.confluent.io/platform/current/schema-registry/index.html)
+* [ ] What are the benefits to use a Schema Registry for messages ? [Help](https://docs.confluent.io/platform/current/schema-registry/index.html)
+* [ ] Where are stored schemas information ?
 * [ ] What is serialization ? [Help](https://developer.confluent.io/learn-kafka/kafka-streams/serialization/#serialization)
 * [ ] What serialization format are supported ? [Help](https://docs.confluent.io/platform/current/schema-registry/index.html#avro-json-and-protobuf-supported-formats-and-extensibility)
 * [ ] Why is the Avro format so compact ? [Help](https://docs.confluent.io/platform/current/schema-registry/index.html#ak-serializers-and-deserializers-background)
@@ -120,14 +126,61 @@ Look at :
 [Kafka Streams Data Types and Serialization](https://docs.confluent.io/platform/current/streams/developer-guide/datatypes.html#avro)
 
 1. Inside `KafkaAvroProducerService`, replace `???` to send your first message using Avro and the Schema Registry.
-2. Add a new property to the class `News` called `date: java.sql.Timestamp`
-3. Send another message and on Conduktor see what happens
-4. Modify the class `News` from `title: String` to `bigTitle: String`
-5. What happens on your console log when sending messages ? 
+2. Add a new property to the class `News` called `test: String`
+3. What happens on your console log when sending messages ?
+4. Modify the class `News` from `test: Option[String] = None`
+5. Send another message and on Conduktor Schema Registry tab, see what happens
+
+[About schema evolution](https://docs.confluent.io/platform/current/schema-registry/avro.html#schema-evolution)
+
+#### Kafka Connect 
+Kafka Connect is a free, open-source component of Apache Kafka® that works as a centralized data hub for simple data integration between databases, key-value stores, search indexes, and file systems. [Learn more here](https://docs.confluent.io/platform/current/connect/index.html)
+
+[!](https://images.ctfassets.net/gt6dp23g0g38/5vGOBwLiNaRedNyB0yaiIu/529a29a059d8971541309f7f57502dd2/ingest-data-upstream-systems.jpg)
+
+Videos to learn :
+* [Video series with Confluent](https://developer.confluent.io/learn-kafka/kafka-connect/intro/)
+* [Video series with Conduktor](https://www.youtube.com/watch?v=4GSmIE9ji9c&list=PLYmXYyXCMsfMMhiKPw4k1FF7KWxOEajsA&index=25)
+
+##### Where to find connectors ?
+Already-made connectors can be found on [the Confluent Hub](https://www.confluent.io/hub/)
+
+One has already being installed via docker-compose.yml, can you spot it ?
+
+This File Sink connector read from a topic, and write it as a file on your local machine.
+
+##### How to start a connector ?
+For tests purposes, we are going to use the [Standalone run mode](https://docs.confluent.io/kafka-connectors/self-managed/userguide.html#standalone-mode)
+
+In order to run a [FileStream connector](https://docs.confluent.io/platform/current/connect/filestream_connector.html#kconnect-long-filestream-connectors), to read from our topics set inside the `kafka-connect-configs/connect-file-sink-properties`
+
+```bash
+docker-compose run kafka-connect bash
+> ls
+> cat connect-file-sink.properties
+> connect-standalone connect-standalone.properties connect-file-sink.properties
+```
+
+A file should have been produced on your local container
+```bash
+ls 
+cat test.sink.txt
+```
+
+**How can we use this kind of connector for a production use ?** 
+* [ ] Can we find another connector [on the Confluent Hub](https://www.confluent.io/hub/) that can write inside a data lake ?
+
+##### How do Serializers work for Kafka connect ?
+Inside `kafka-connect-config/connect-file-sink.properties`, we need to set the serializer we used to produce the data, for our case we want to use the **String Serializer** inside our config.
+
+Tips : [Kafka Connect Deep Dive – Converters and Serialization Explained](https://www.confluent.io/fr-fr/blog/kafka-connect-deep-dive-converters-serialization-explained/)
+
+##### How do consumer group work for Kafka connect ?
+Look on Conduktor to see if a Connector use a consumer group to bookmark partitions' offsets.
 
 #### Monitoring and Operations
 ##### Questions
-* [ ] Which metrics can we monitor ?
+* [ ] Which metrics should we monitor ?
 [Datadog's Kafka dashboard overview](https://www.datadoghq.com/dashboards/kafka-dashboard/)
 
 ### Useful links
