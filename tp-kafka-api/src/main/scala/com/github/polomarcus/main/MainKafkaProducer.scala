@@ -8,7 +8,7 @@ object MainKafkaProducer {
   def main(args: Array[String]) {
     val logger = Logger(this.getClass)
     logger.info("Used `sbt run` to start the app")
-
+    //tp2
     //@DONE go to ConfService to modify the TOPIC_OUT value by yours
     for (i <- 0 to 20) {
       KafkaProducerService.produce(ConfService.TOPIC_OUT, s"key$i", s"value$i")
