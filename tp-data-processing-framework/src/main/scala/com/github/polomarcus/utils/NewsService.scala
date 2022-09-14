@@ -35,7 +35,7 @@ object NewsService {
         news.editorDeputy,
         news.url,
         news.urlTvNews,
-        news.containsWordGlobalWarming, // @TODO: we need to apply a function here from ClimateService
+        ClimateService.isClimateRelated(news.title + news.description), // @TODO: we need to apply a function here from ClimateService
         news.media
       )
 
@@ -52,21 +52,27 @@ object NewsService {
    * @return newsDataset but with containsWordGlobalWarming to true
    */
   def filterNews(newsDataset: Dataset[News]) : Dataset[News] = {
-    newsDataset.filter { news =>
-      ??? //@TODO complete here
-    }
+    newsDataset.filter { news => news.containsWordGlobalWarming }
   }
 
   /**
-   * detect if a sentence is climate related by looking for these words in sentence :
-   * global warming
-   * IPCC
-   * climate change
-   * @param description "my awesome sentence contains a key word like climate change"
-   * @return Boolean True
+   * count the number of news that is climate change related
+   * @param dataset of news
+   * @return a count
+   */
+  def getNumberOfNewsClimateChangeRelated(dataset: Dataset[News]): Long = {
+    //@TODO look a the Spark API to know how to count
+    filterNews(dataset).count()
+  }
+
+  /**
+   * count the number of news
+   * @param dataset of news
+   * @return a count
    */
   def getNumberOfNews(dataset: Dataset[News]): Long = {
     //@TODO look a the Spark API to know how to count
-    return 1
+    dataset.count()
   }
+
 }

@@ -6,6 +6,7 @@ To process a large amount of data partitioned on a data lake, you can use data p
 
 Some questions :
 * What is Spark RDD API ?
+
 * What is Spark Dataset API ?
 * With which languages can you use Spark ? 
 * Which data sources or data sinks can Spark work with ? 
