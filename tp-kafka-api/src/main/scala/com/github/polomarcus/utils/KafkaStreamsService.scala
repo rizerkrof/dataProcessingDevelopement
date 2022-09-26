@@ -29,8 +29,9 @@ object KafkaStreamsService {
     val textLinesStream: KStream[String, String] = builder.stream[String, String](ConfService.TOPIC_OUT)
 
     //@TODO apply a filter here before counting words
+    val filteredTextLinesStream: KStream[String, String] = textLinesStream.filter{ (key, value) => value contains "filter" }
 
-    val wordCounts: KTable[String, Long] = textLinesStream
+    val wordCounts: KTable[String, Long] = filteredTextLinesStream
       .flatMapValues(textLine => { // Stateless
         val transformed = textLine.toLowerCase.split("\\W+")
 
