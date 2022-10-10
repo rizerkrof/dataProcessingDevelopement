@@ -54,7 +54,9 @@ object KafkaStreamsService {
 
 
     //@TODO join a stream (The join operation is on the keys of the messages) from ConfService.TOPIC_KAFKA_STREAMS_WORD
-
+    val joinStream: KStream[String, (String, Long)] = textLinesStream.join[String, (String, Long)](wordCounts) {
+      (key, wordCount) => (key, wordCount)
+    }
     //@TODO display the joined stream using a foreach
     //logger.info(s"Key $key - value after joined $value")
 
